@@ -12,62 +12,62 @@ This project involves a comprehensive analysis of Netflix's movies and TV shows 
 
 #Business Problem and Solutions
 ## -- 1. Count the number of Movies vs TV Shows
-
-SELECT DISTINCT type, COUNT(*) AS movie_types
-FROM netflix_table
-GROUP BY type;
+	
+	SELECT DISTINCT type, COUNT(*) AS movie_types
+	FROM netflix_table
+	GROUP BY type;
 
 Objective: Determine how much content on Netflix falls under each type (Movie vs TV Show)
 
 ## -- 2. Find the most common rating for movies and TV shows
-SELECT *
-FROM 
-(
-SELECT 
-	rating, 
-	COUNT(*) as rating_number, 
-	RANK() OVER(PARTITION BY type ORDER BY COUNT(*) DESC) as ranking
-FROM netflix_table
-GROUP BY type,rating
-) as T1
-WHERE ranking = 1;
+	SELECT *
+	FROM 
+	(
+	SELECT 
+		rating, 
+		COUNT(*) as rating_number, 
+		RANK() OVER(PARTITION BY type ORDER BY COUNT(*) DESC) as ranking
+	FROM netflix_table
+	GROUP BY type,rating
+	) as T1
+	WHERE ranking = 1;
 
 Objective: Identify the most frequently used content rating for each type 
 
 ## -- 3. List all movies released in a specific year (e.g., 2020)
-SELECT title, release_year
-FROM
-(SELECT *
-FROM netflix_table
-WHERE type = 'movie'
-) AS T2
-WHERE release_year = 2020;
+	SELECT title, release_year
+	FROM
+	(SELECT *
+	FROM netflix_table
+	WHERE type = 'movie'
+	) AS T2
+	WHERE release_year = 2020;
 
 Objective: Retrieve all movie titles that were released in a specified year
 
 ## -- 4. Find the top 5 countries with the most content on Netflix
-WITH RECURSIVE country_split AS (
-    SELECT 
-        TRIM(SUBSTRING_INDEX(country, ',', 1)) AS country,
-        SUBSTRING_INDEX(country, ',', -1) AS remaining
-    FROM netflix_table
-    WHERE country IS NOT NULL
-
-    UNION ALL
-
-    SELECT 
-        TRIM(SUBSTRING_INDEX(remaining, ',', 1)),
-        SUBSTRING_INDEX(remaining, ',', -1)
-    FROM country_split
-    WHERE remaining LIKE '%,%'
-)
-
-SELECT country, COUNT(*) AS total_content
-FROM country_split
-WHERE country <> ''
-GROUP BY country
-ORDER BY total_content DESC
-LIMIT 5;
+	WITH RECURSIVE country_split AS (
+	    SELECT 
+	        TRIM(SUBSTRING_INDEX(country, ',', 1)) AS country,
+	        SUBSTRING_INDEX(country, ',', -1) AS remaining
+	    FROM netflix_table
+	    WHERE country IS NOT NULL
+	
+	    UNION ALL
+	
+	    SELECT 
+	        TRIM(SUBSTRING_INDEX(remaining, ',', 1)),
+	        SUBSTRING_INDEX(remaining, ',', -1)
+	    FROM country_split
+	    WHERE remaining LIKE '%,%'
+	)
+	
+	SELECT country, COUNT(*) AS total_content
+	FROM country_split
+	WHERE country <> ''
+	GROUP BY country
+	ORDER BY total_content DESC
+	LIMIT 5;
 
 Objective: To identify the top 5 countries that have produced the most content (movies and TV shows) available on Netflix
 
